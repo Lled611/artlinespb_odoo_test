@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="sale_report_test_template" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//div[@t-if='doc.user_id.name']" position="after">
+            <div class="col-auto col-3 mw-100 mb-2">
+                <strong>Test:</strong>
+                <p t-if="doc.test" class="m-0" t-field="doc.test"/>
+                <p t-else="" class="m-0">The test field is empty!!!</p>
+            </div>
+        </xpath>
+    </template>
+</odoo>

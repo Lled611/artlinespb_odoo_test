@@ -4,7 +4,7 @@ import string
 import random
 
 
-class SaleResponsible(models.Model):
+class SaleTest(models.Model):
     _inherit = 'sale.order'
     test = fields.Char(
         string='Test',
@@ -13,13 +13,17 @@ class SaleResponsible(models.Model):
     )
     date_order = fields.Datetime(default=None)
 
+    @staticmethod
+    def new_test(amount_total, date_order):
+        return '%(amount_total).2f - %(date_order)s' % {
+                'amount_total': amount_total,
+                'date_order': date_order.strftime('%d/%m/%Y %H:%M:%S')
+            }
+
     @api.onchange('date_order', 'order_line')
     def onchange_date_order_amount_total(self):
         if self.date_order:
-            self.test = '%(amount_total).2f - %(date_order)s' % {
-                'amount_total': self.amount_total,
-                'date_order': self.date_order.strftime('%d/%m/%Y %H:%M:%S')
-            }
+            self.test = self.new_test(self.amount_total, self.date_order)
 
     @api.constrains('test')
     def check_test(self):
@@ -30,6 +34,14 @@ class SaleResponsible(models.Model):
     
     @api.model
     def default_get(self, fields):
-        res = super(SaleResponsible, self).default_get(fields)
+        res = super(SaleTest, self).default_get(fields)
         res['test'] = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
         return res
+    
+    def init(self):
+        super(SaleTest, self).init()
+        for quotation in self.search([('test', '=', False)]):
+            print(quotation.name)
+            quotation.update({
+                'test': quotation.new_test(quotation.amount_total, quotation.date_order)
+            })
